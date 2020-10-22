@@ -4,10 +4,10 @@
 
 ### Simple classifiers
 
-Для запуска в папку проекта добавить папку dataset отсюда
-[тык](https://drive.google.com/drive/folders/1WLkg1xvfxAwzFR6NWbEqZrTvr7QgQOkP)
+Dataset (`dataset` folder) should be loaded and added in project folder from link:
+[google drive](https://drive.google.com/drive/folders/1WLkg1xvfxAwzFR6NWbEqZrTvr7QgQOkP)
 
-В коде используются файлы из проекта [CUP(статья откуда датасет)](https://github.com/Tbabm/CUP/)
+Files from CUP project are used. [CUP(paper with dataset)](https://github.com/Tbabm/CUP/)
  
 
 
