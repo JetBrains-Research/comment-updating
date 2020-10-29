@@ -8,6 +8,10 @@ Dataset (`dataset` folder) should be loaded and added in project folder from lin
 [google drive](https://drive.google.com/drive/folders/1WLkg1xvfxAwzFR6NWbEqZrTvr7QgQOkP)
 
 Files from CUP project are used. [CUP(paper with dataset)](https://github.com/Tbabm/CUP/)
+
+### TF-IDF classifier
+
+See [notebook](https://colab.research.google.com/drive/1U-TYkAsQ_iNRedbWFlWd7y56Qy0I-a2K?usp=sharing) on google colab
  
 
 
