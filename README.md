@@ -14,4 +14,6 @@ Files from CUP project are used. [CUP(paper with dataset)](https://github.com/Tb
 See [notebook](https://colab.research.google.com/drive/1U-TYkAsQ_iNRedbWFlWd7y56Qy0I-a2K?usp=sharing) on google colab
  
 
+### Dataset Analysis
 
+See [notebook](https://colab.research.google.com/drive/1u9eTtxM2_ZntoK6C3rajBGzLikO6je5F?usp=sharing) on google colab
