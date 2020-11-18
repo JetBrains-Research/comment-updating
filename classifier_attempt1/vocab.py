@@ -23,10 +23,10 @@ from collections import Counter
 from itertools import chain
 from docopt import docopt
 import json
-from classifier_attemp1.common import *
+from classifier_attempt1.common import *
 from tqdm import tqdm
 if TYPE_CHECKING:
-    from classifier_attemp1.dataset import Dataset
+    from classifier_attempt1.dataset import Dataset
 
 
 class BaseVocabEntry(ABC):
@@ -337,7 +337,7 @@ class MixVocab(object):
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-    from classifier_attemp1.dataset import Dataset
+    from classifier_attempt1.dataset import Dataset
 
     print("Loading train set: " + args['--train-set'])
     train_set = Dataset.create_from_file(args['--train-set'])

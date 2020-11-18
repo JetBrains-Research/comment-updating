@@ -4,9 +4,9 @@ import json
 from abc import ABC, abstractmethod
 from torch import Tensor
 from typing import Tuple, Callable
-from classifier_attemp1.common import *
+from classifier_attempt1.common import *
 import logging
-from classifier_attemp1.vocab import VocabEntry, ExtVocabEntry
+from classifier_attempt1.vocab import VocabEntry, ExtVocabEntry
 
 logging.basicConfig(level=logging.INFO)
 
