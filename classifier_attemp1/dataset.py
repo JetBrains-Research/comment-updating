@@ -3,10 +3,10 @@ import math
 import json
 from abc import ABC, abstractmethod
 from torch import Tensor
-from typing import Iterable, Tuple, Callable
-from common import *
+from typing import Tuple, Callable
+from classifier_attemp1.common import *
 import logging
-from vocab import VocabEntry, ExtVocabEntry
+from classifier_attemp1.vocab import VocabEntry, ExtVocabEntry
 
 logging.basicConfig(level=logging.INFO)
 
