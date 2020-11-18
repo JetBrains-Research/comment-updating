@@ -35,3 +35,4 @@ and CUP ([Automating JIT...](https://conf.researchr.org/details/ase-2020/ase-202
 
 - Simple average model on tf for CUP: [colab](https://colab.research.google.com/drive/1kCxNEFSp7kZvoSJHcCnh78C0vBnLbQNS?usp=sharing) and Texas: [colab](https://colab.research.google.com/drive/1a8cSDuBykc2NhijUk1KCZhQPjNhTcFaT?usp=sharing)
 - Manual labeling test and Decision tree with simple features for Texas: [colab](https://colab.research.google.com/drive/1GkuJJjXg2huMN5KuFp4snRBmJTvjXnSh?usp=sharing)
+- NBOW, pretrained embeddings, LSTMs and Transformers for Texas: [colab](https://colab.research.google.com/drive/1jTbECKbRCkFFdfMvT1_1MB-IzHpn7DhX?usp=sharing) and CUP: [colab](https://colab.research.google.com/drive/18PgwsEzIFZ4veJq5O3VaiGrwQW2_xjW3?usp=sharing)
