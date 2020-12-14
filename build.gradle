@@ -21,12 +21,25 @@ repositories {
     }
 }
 
+test {
+    useJUnitPlatform()
+}
+
+ext.jUnitVersion = "5.5.2"
+
 dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$jUnitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$jUnitVersion"
+
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     //implementation 'org.eclipse.jgit:org.eclipse.jgit-parent:5.5.1.201910021850-r'
     compile 'org.eclipse.jgit:org.eclipse.jgit:5.9.0.202009080501-r'
     compile 'org.eclipse.jgit:org.eclipse.jgit.archive:5.9.0.202009080501-r'
     compile 'org.eclipse.jgit:org.eclipse.jgit.ssh.jsch:5.9.0.202009080501-r'
+
+    testImplementation 'org.eclipse.jgit:org.eclipse.jgit.junit:5.9.0.202009080501-r'
+
     compile 'org.slf4j:slf4j-simple:1.7.6'
 
 //    compile 'com.github.gumtreediff:gen.javaparser:2.1.2'
