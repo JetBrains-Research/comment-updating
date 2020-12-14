@@ -688,4 +688,61 @@ class ExtractorTestJUnit5 {
         assert(sample4 in changes.toSet())
         assert(sample5 in changes.toSet())
     }
+
+    @ExperimentalStdlibApi
+    @Test
+    fun `Test javadoc and method change`() {
+        val functionBefore = """
+            void hello() {
+                    System.out.println("Hello!");
+                    System.out.println("World!");
+                }
+        """
+
+        val docBefore = """
+            /**
+                * Javadoc changed
+                */
+        """
+
+
+        @Language("JAVA")
+        val code = """
+            class MyClass {
+                $docBefore
+                $functionBefore
+            }
+        """.trimIndent()
+
+        val functionAfter = """
+            void hello() {
+                    System.out.println("Hello,");
+                    System.out.println("Kotlin");
+                    System.out.println("World!");
+                }
+        """
+
+        val docAfter = """
+            /**
+                * Javadoc changed also
+                */
+        """
+
+
+        @Language("JAVA")
+        val newCode = """
+            class MyClass {
+                $docAfter
+                $functionAfter
+            }
+        """.trimIndent()
+        val changes = changesExtractor.extract(code.encodeToByteArray(), newCode.encodeToByteArray())
+        assertEquals(1, changes.size)
+        assertEquals(Sample(
+            D1 = docBefore.trimIndent(),
+            M1 = functionBefore.trimIndent(),
+            D2 = docAfter.trimIndent(),
+            M2 = functionAfter.trimIndent()
+        ), changes[0])
+    }
 }
