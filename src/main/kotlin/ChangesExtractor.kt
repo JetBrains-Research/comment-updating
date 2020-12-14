@@ -19,6 +19,10 @@ import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.charset.Charset
+import com.github.gumtreediff.actions.EditScript
+
+
+
 
 
 fun main() {
@@ -26,6 +30,7 @@ fun main() {
     val dstFile = "sample2.java"
     val samples = ChangesExtractor().extract(File(srcFile).readBytes(), File(dstFile).readBytes())
     println(samples)
+
 }
 
 class ChangesExtractor {
@@ -96,14 +101,27 @@ class ChangesExtractor {
         val intersectNames = listMethodsNames(dst as Tree).intersect(listMethodsNames(src as Tree)).toSet()
         val srcChanged = extractChangedMethods(src as Tree, srcActions)
         val dstChanged = extractChangedMethods(dst as Tree, dstActions)
-        val changed = srcChanged.union(dstChanged)
         val samples = mutableListOf<Sample>()
-        for (node in changed) {
-            val name: String = (node.getMetadata("NAME") as? String) ?: ""
+        for (srcNode in srcChanged) {
+            val name: String = (srcNode.getMetadata("NAME") as? String) ?: ""
             if (name in intersectNames) {
-                val srcPair = extractCodeComment(node, srcBytes.toString(Charsets.UTF_8))
-                val dstPair = extractCodeComment(node, dstBytes.toString(Charsets.UTF_8))
-                samples.add(Sample(srcPair.second, srcPair.first, dstPair.second, dstPair.first))
+                val dstNode = mappings.getDstForSrc(srcNode)
+                if (dstNode.type.name == "MethodDeclaration") {
+                    val srcPair = extractCodeComment(srcNode, srcBytes.toString(Charsets.UTF_8))
+                    val dstPair = extractCodeComment(dstNode as Tree, dstBytes.toString(Charsets.UTF_8))
+                    samples.add(Sample(srcPair.second, srcPair.first, dstPair.second, dstPair.first))
+                }
+            }
+        }
+        for (dstNode in dstChanged) {
+            val name: String = (dstNode.getMetadata("NAME") as? String) ?: ""
+            if (name in intersectNames) {
+                val srcNode = mappings.getSrcForDst(dstNode)
+                if (dstNode.type.name == "MethodDeclaration") {
+                    val srcPair = extractCodeComment(srcNode as Tree, srcBytes.toString(Charsets.UTF_8))
+                    val dstPair = extractCodeComment(dstNode, dstBytes.toString(Charsets.UTF_8))
+                    samples.add(Sample(srcPair.second, srcPair.first, dstPair.second, dstPair.first))
+                }
             }
         }
         return samples
@@ -112,7 +130,12 @@ class ChangesExtractor {
 
     private fun extractCodeComment(node: Tree, code: String): Pair<String, String> {
         // TODO: try catch on is MethodDeclaration
-        return (
+
+//        println("DEBUG: CODE:${node.children.get(1).pos to
+//            node.endPos} COMMENT:${
+//            node.children.get(0).pos to
+//            node.children.get(0).endPos}")
+         return (
                 code.substring(
                     node.children.get(1).pos,
                     node.endPos)
