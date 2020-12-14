@@ -34,7 +34,7 @@ fun main(args: Array<String>) {
 fun getRepo(repoUrl: String, repoPath: String = "./TestGitRepository") : Repository {
     val localPath = File(repoPath)
     if (!localPath.exists()) {
-        System.out.println("Cloning from " + repoUrl.toString() + " to " + localPath)
+        println("Cloning from $repoUrl to $localPath")
         Git.cloneRepository()
                 .setURI(repoUrl)
                 .setDirectory(localPath)
@@ -44,7 +44,7 @@ fun getRepo(repoUrl: String, repoPath: String = "./TestGitRepository") : Reposit
                     println("Having repository: " + result.getRepository().getDirectory())
                 }
     }
-    val repoDir = File(repoPath + "/.git")
+    val repoDir = File("$repoPath/.git")
     val builder = FileRepositoryBuilder()
     return builder.setGitDir(repoDir)
             .readEnvironment() // scan environment GIT_* variables
@@ -52,7 +52,7 @@ fun getRepo(repoUrl: String, repoPath: String = "./TestGitRepository") : Reposit
             .build()
 }
 
-private fun walkBranch(repo: Repository, branchName: String = "refs/heads/master",
+fun walkBranch(repo: Repository, branchName: String = "refs/heads/master",
                        lookedPairs: HashSet<Pair<String, String>>, changesExtractor: ChangesExtractor,
                        verbose: Boolean = false): List<Sample> {
     val head = repo.exactRef(branchName) ?: repo.exactRef("refs/heads/main")
@@ -62,7 +62,7 @@ private fun walkBranch(repo: Repository, branchName: String = "refs/heads/master
     // a RevWalk allows to walk over commits based on some filtering that is defined
     RevWalk(repo).let { walk ->
         val commit = walk.parseCommit(head.getObjectId())
-        if (verbose) println("Start-Commit: " + commit)
+        if (verbose) println("Start-Commit: $commit")
 
         if(verbose) println("Walking all commits starting at HEAD")
         walk.markStart(commit)
@@ -119,6 +119,7 @@ private fun listDiff(repository: Repository, git: Git, oldCommit: String, newCom
         .setNewTree(prepareTreeParser(repository, newCommit))
         .call()
     val list = mutableListOf<Sample>()
+
     for (diff: DiffEntry in diffs) {
         if (diff.changeType == DiffEntry.ChangeType.MODIFY) {
             if (diff.oldPath.endsWith(".java") && diff.newPath.endsWith(".java")) {
@@ -129,40 +130,11 @@ private fun listDiff(repository: Repository, git: Git, oldCommit: String, newCom
                     )
                 }
 
-//                val loader: ObjectLoader = repository.open(diff.oldId.toObjectId())
-//                val charset = Charsets.UTF_8
-//                if (verbose) println(loader.bytes.toString(charset))
-
                 val samples = changesExtractor.extract(repository.open(diff.oldId.toObjectId()).bytes,
                                 repository.open(diff.newId.toObjectId()).bytes)
+                if (verbose) println("Found ${samples.size} changes")
                 list.addAll(samples)
             }
-
-            if (diff.oldPath.endsWith(".kt") && diff.newPath.endsWith(".kt")) {
-                if (verbose) {
-                    println(
-                            "Diff: Kotlin " + diff.changeType + ": " +
-                                    if (diff.oldPath == diff.newPath) diff.newPath else diff.oldPath + " -> " + diff.newPath
-                    )
-                }
-                //val loader: ObjectLoader = repository.open(diff.oldId.toObjectId())
-                //val charset = Charsets.UTF_8
-                //println(loader.bytes.toString(charset))
-                //val srcBytes: ByteArray  = repository.open(diff.oldId.toObjectId()).bytes
-                //srcBytes.
-
-//                if (verbose) {
-//                    DiffFormatter(System.out).let { formatter ->
-//                        formatter.setRepository(repository)
-//                        formatter.format(diff)
-//                    }
-//                }
-
-                val samples = changesExtractor.extract(repository.open(diff.oldId.toObjectId()).bytes,
-                    repository.open(diff.newId.toObjectId()).bytes)
-                list.addAll(samples)
-            }
-
 
         }
     }
