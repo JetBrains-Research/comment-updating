@@ -5,33 +5,16 @@ import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.*
 
 import org.junit.jupiter.api.Test
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.api.MergeCommand
+
+
+
+
+
+
 
 class GitDiffTest : RepositoryTestCase() {
-//    private var git: Git? = null
-//    private var tr: TestRepository<Repository>? = null
-//    @Throws(Exception::class)
-//    override fun setUp() {
-//        super.setUp()
-//        tr = TestRepository(db)
-//        git = Git(db)
-//        // commit something
-//        writeTrashFile("Test.txt", "Hello world")
-//        git!!.add().addFilepattern("Test.txt").call()
-//        git!!.commit().setMessage("Initial commit").call()
-//        val head = git!!.tag().setName("tag-initial").setMessage("Tag initial")
-//            .call()
-//
-//        // create a test branch and switch to it
-//        git!!.checkout().setCreateBranch(true).setName("test").call()
-//
-//
-//        // commit something on the test branch
-//        writeTrashFile("Test.txt", "Some change")
-//        git!!.add().addFilepattern("Test.txt").call()
-//        git!!.commit().setMessage("Second commit").call()
-//        val blob: RevBlob = (tr as TestRepository<Repository>).blob("blob-not-in-master-branch")
-//        git!!.tag().setName("tag-for-blob").setObjectId(blob).call()
-//    }
 
     @Test
     fun `test two commits on master branch`() {
@@ -261,7 +244,7 @@ class GitDiffTest : RepositoryTestCase() {
         val code5 = """
             class MyClass {
                 $docAfter
-                $functionAfter
+                $functionAfter 
             }
         """.trimIndent()
         writeTrashFile("sample.java", code5)
@@ -276,6 +259,176 @@ class GitDiffTest : RepositoryTestCase() {
             D2 = docAfter.trimIndent(),
             M2 = functionAfter.trimIndent())
         assertEquals(sample, changes[0])
+    }
+
+    @Test
+    fun `Test two branches`() {
+        setUp()
+        val testRepo = TestRepository(db)
+        val git = Git(db)
+
+        writeTrashFile("sample.java", """
+            class MyClass {
+                /**
+                * Main function 
+                */
+                public static void main(String[] args) {
+                    System.out.println("Hello, world!");
+                }
+            }
+        """.trimIndent())
+        git.add().addFilepattern("sample.java").call()
+        git.commit().setMessage("Initial commit").call()
+
+        // create a test branch and switch to it
+        git.checkout().setCreateBranch(true).setName("test").call()
+
+        // commit something on the test branch
+        writeTrashFile("sample.java", """
+            class MyClass {
+                /**
+                * Main function 
+                */
+                public static void main(String[] args) {
+                    System.out.println("Hello, world!");
+                }
+                
+                /**
+                * 
+                * @param a
+                * @param b
+                * @return sum of a and b
+                */
+                public int add(int a, int b) {
+                    return a + b;
+                }
+            }
+        """.trimIndent())
+        git.add().addFilepattern("sample.java").call()
+        git.commit().setMessage("Function add added").call()
+
+        // commit something on the test branch
+        writeTrashFile("sample.java", """
+            class MyClass {
+                /**
+                * Main function 
+                */
+                public static void main(String[] args) {
+                    System.out.println("Hello, world!");
+                }
+                
+                /**
+                * Read more about laplandian algebraic field here: [link](https://www.youtube.com/watch?v=oHg5SJYRHA0)
+                * @param a
+                * @param b
+                * @return laplandian sum of a and b
+                */
+                public int add(int a, int b) {
+                    if (a > b) {
+                        return a % b + b;
+                    }
+                    return a + b;
+                }
+            }
+        """.trimIndent())
+        git.add().addFilepattern("sample.java").call()
+        git.commit().setMessage("Laplandian addition added").call()
+
+        val mergeBase: ObjectId = testRepo.repository.resolve("test")
+        val merge: MergeResult? =
+            git.
+            merge().
+            include(mergeBase).
+            setCommit(true)
+            .setFastForward(MergeCommand.FastForwardMode.NO_FF).
+                setMessage("Merged test to master")
+                .call()
+
+        git.checkout().setCreateBranch(false).setName("master").call()
+        // commit something on the master branch
+
+        writeTrashFile("sample.java", """
+            class MyClass {
+                /**
+                * Main function on master
+                */
+                public static void main(String[] args) {
+                    System.out.println("Hello, world!");
+                }
+                
+                /**
+                * Read more about laplandian algebraic field here: [link](https://www.youtube.com/watch?v=oHg5SJYRHA0)
+                * @param a
+                * @param b
+                * @return laplandian sum of a and b
+                */
+                public int add(int a, int b) {
+                    if (a > b) {
+                        return a % b + b;
+                    }
+                    return a + b;
+                }
+            }
+        """.trimIndent())
+        git.add().addFilepattern("sample.java").call()
+        git.commit().setMessage("Javadoc changed for main").call()
+
+        val changes = walkRepo(testRepo.repository, verbose = false)
+        assertEquals(2, changes.size)
+        val sample1 = Sample(
+            D1 = """
+            /**
+                * Main function 
+                */
+        """.trimIndent(),
+        M1 = """
+            public static void main(String[] args) {
+                    System.out.println("Hello, world!");
+                }
+        """.trimIndent(),
+        D2 = """
+            /**
+                * Main function on master
+                */
+        """.trimIndent(),
+        M2 = """
+            public static void main(String[] args) {
+                    System.out.println("Hello, world!");
+                }
+        """.trimIndent())
+
+        val sample2 = Sample(
+            D1 = """
+            /**
+                * 
+                * @param a
+                * @param b
+                * @return sum of a and b
+                */
+        """.trimIndent(),
+            M1 = """
+            public int add(int a, int b) {
+                    return a + b;
+                }
+        """.trimIndent(),
+            D2 = """
+            /**
+                * Read more about laplandian algebraic field here: [link](https://www.youtube.com/watch?v=oHg5SJYRHA0)
+                * @param a
+                * @param b
+                * @return laplandian sum of a and b
+                */
+        """.trimIndent(),
+            M2 = """
+            public int add(int a, int b) {
+                    if (a > b) {
+                        return a % b + b;
+                    }
+                    return a + b;
+                }
+        """.trimIndent())
+        assert(sample1 in changes.toSet())
+        assert(sample2 in changes.toSet())
     }
 
 }
